@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Innovators - Robotics Education</title>
+    <meta name="description" content="AICRA approved robotics education programs for schools - IoT, Electronics, Embedded Systems, and Mechatronics">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<head>
+    <!-- Previous head content remains the same until the closing </style> tag -->
+    <style>
+        /* Previous styles remain the same */
+        
+        /* Chatbot styles */
+        .chatbot-container {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 320px;
+            max-height: 400px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .chatbot-container.open {
+            display: flex;
+        }
+        .chatbot-header {
+            background: #1e40af;
+            color: white;
+            padding: 12px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chatbot-messages {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            max-height: 300px;
+            background: #f8fafc;
+        }
+        .chatbot-message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+            max-width: 80%;
+        }
+        .bot-message {
+            background: #e0e7ff;
+            color: #1e40af;
+            align-self: flex-start;
+        }
+        .user-message {
+            background: #1e40af;
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .chatbot-input-area {
+            display: flex;
+            border-top: 1px solid #e2e8f0;
+            padding: 10px;
+        }
+        .chatbot-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+        }
+        .chatbot-send {
+            background: #1e40af;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            margin-left: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .chatbot-send:hover {
+            background: #1e3a8a;
+        }
+        #chatbot-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1e40af;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        #chatbot-btn:hover {
+            background: #1e3a8a;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50">
+    <!-- All previous content remains the same until just before the closing </body> tag -->
+
+    <!-- Chatbot Button -->
+    <button id="chatbot-btn" aria-label="Open chatbot">
+        <i class="fas fa-robot"></i>
+    </button>
+
+    <!-- Chatbot Container -->
+    <div id="chatbot-container" class="chatbot-container">
+        <div class="chatbot-header">
+            <span>Dynamic Innovators Assistant</span>
+            <button id="close-chatbot" aria-label="Close chatbot">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="chatbot-messages" class="chatbot-messages">
+            <div class="chatbot-message bot-message">
+                Hello! I'm here to help with your questions about Dynamic Innovators robotics programs. What would you like to know?
+            </div>
+        </div>
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbot-input" class="chatbot-input" placeholder="Type your question..." aria-label="Chatbot input">
+            <button id="chatbot-send" class="chatbot-send" aria-label="Send message">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-24 right-6 bg-gray-700 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:bg-gray-800 transition duration-300 opacity-0 invisible z-40">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // Previous JavaScript remains the same until the end of the file
+
+        // Chatbot functionality
+        const chatbotBtn = document.getElementById('chatbot-btn');
+        const chatbotContainer = document.getElementById('chatbot-container');
+        const closeChatbot = document.getElementById('close-chatbot');
+        const chatbotSend = document.getElementById('chatbot-send');
+        const chatbotInput = document.getElementById('chatbot-input');
+        const chatbotMessages = document.getElementById('chatbot-messages');
+
+        // Toggle chatbot visibility
+        chatbotBtn.addEventListener('click', () => {
+            chatbotContainer.classList.toggle('open');
+        });
+
+        closeChatbot.addEventListener('click', () => {
+            chatbotContainer.classList.remove('open');
+        });
+
+        // Sample Q&A for chatbot
+        const chatbotResponses = {
+            "courses": "We offer three main programs: IoT Programs, Electronics & Embedded Systems, and Mechatronics. Each focuses on different aspects of robotics education.",
+            "programs": "Our programs include:<br>1. IoT Programs (sensors, cloud integration)<br>2. Electronics & Embedded Systems (circuit design, microcontrollers)<br>3. Mechatronics (robotics kinematics, automation)",
+            "fees": "Program fees vary depending on duration and school requirements. Typically, our programs range from ₹8,000 to ₹15,000 per student for a 3-month course. Contact us for exact pricing for your school.",
+            "timings": "We conduct sessions during school hours or after-school based on your preference. Each session is typically 1-2 hours, 2-3 times per week.",
+            "location": "We conduct programs directly in schools across India. Our main office is in Bangalore at 123 Innovation Drive, Tech Park.",
+            "trial": "Yes! We offer a free demo session for schools. Contact us to schedule a trial robotics workshop for your students.",
+            "competitions": "We prepare students for competitions like IIT Techfest, Technoxian, and national robotics challenges. Our students have won 25+ competitions.",
+            "requirements": "We provide all equipment. Schools just need to provide a classroom with tables and power outlets. For advanced programs, having a computer lab is helpful.",
+            "school": "For schools, we offer customized robotics programs that can be integrated into your curriculum or as extracurricular activities. We handle all teaching and materials.",
+            "age": "Our programs are designed for students aged 10-18, with different difficulty levels for different age groups.",
+            "team": "Our team of 4 experts includes specialists in programming, electronics, mechanical design, and robotics instruction.",
+            "contact": "You can reach us at:<br>Phone: +91 98765 43210<br>Email: schools@dynamicinnovators.com<br>Or fill out the contact form on this website.",
+            "about": "Dynamic Innovators is an AICRA-approved robotics education provider since 2015. We've trained 2000+ students across 50+ schools in India."
+        };
+
+        const defaultResponses = [
+            "I'm not sure I understand. Could you ask about our programs, fees, or contact information?",
+            "That's an interesting question! For detailed information, I recommend contacting our team directly.",
+            "I'm still learning about Dynamic Innovators. Here's what I know: we offer robotics education programs for schools.",
+            "Could you ask something more specific? For example, you could ask about 'programs', 'fees', or 'contact info'."
+        ];
+
+        function addBotMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chatbot-message bot-message';
+            messageDiv.innerHTML = message;
+            chatbotMessages.appendChild(messageDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        function addUserMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'chatbot-message user-message';
+            messageDiv.textContent = message;
+            chatbotMessages.appendChild(messageDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        function getBotResponse(question) {
+            question = question.toLowerCase();
+            
+            if (question.includes('course') || question.includes('program')) {
+                return chatbotResponses['courses'];
+            } else if (question.includes('fee') || question.includes('price') || question.includes('cost')) {
+                return chatbotResponses['fees'];
+            } else if (question.includes('time') || question.includes('schedule') || question.includes('when')) {
+                return chatbotResponses['timings'];
+            } else if (question.includes('where') || question.includes('location') || question.includes('address')) {
+                return chatbotResponses['location'];
+            } else if (question.includes('trial') || question.includes('demo') || question.includes('try')) {
+                return chatbotResponses['trial'];
+            } else if (question.includes('competition') || question.includes('contest') || question.includes('event')) {
+                return chatbotResponses['competitions'];
+            } else if (question.includes('need') || question.includes('require') || question.includes('bring')) {
+                return chatbotResponses['requirements'];
+            } else if (question.includes('school') || question.includes('institution')) {
+                return chatbotResponses['school'];
+            } else if (question.includes('age') || question.includes('old') || question.includes('grade')) {
+                return chatbotResponses['age'];
+            } else if (question.includes('team') || question.includes('teacher') || question.includes('instructor')) {
+                return chatbotResponses['team'];
+            } else if (question.includes('contact') || question.includes('email') || question.includes('phone')) {
+                return chatbotResponses['contact'];
+            } else if (question.includes('about') || question.includes('who are you')) {
+                return chatbotResponses['about'];
+            } else {
+                return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+            }
+        }
+
+        chatbotSend.addEventListener('click', sendMessage);
+        chatbotInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function sendMessage() {
+            const question = chatbotInput.value.trim();
+            if (question === '') return;
+            
+            addUserMessage(question);
+            chatbotInput.value = '';
+            
+            // Simulate typing delay
+            setTimeout(() => {
+                const response = getBotResponse(question);
+                addBotMessage(response);
+            }, 500);
+        }
+    </script>
+    
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        .active-link {
+            color: #1e40af !important;
+            font-weight: 600;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        }
+        .team-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
+        }
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4);
+        }
+        .gallery-img {
+            transition: all 0.3s ease;
+        }
+        .gallery-img:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+        .marquee {
+            white-space: nowrap;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        .marquee span {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marquee 15s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50">
+    <!-- Marquee Banner -->
+    <div class="bg-blue-600 text-white py-2 px-4">
+        <div class="marquee">
+            <span>Club is approved by AICRA • Participated in IIT TECHFESTS, TECHNOXIAN • Register now for summer batches!</span>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-robot text-blue-600 text-3xl mr-2"></i>
+                        <span class="text-xl font-bold text-blue-600">Dynamic Innovators</span>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-center space-x-4">
+                        <a href="#home" class="nav-link text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                        <a href="#about" class="nav-link text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">About Us</a>
+                        <a href="#team" class="nav-link text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Our Team</a>
+                        <a href="#offer" class="nav-link text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">We Offer</a>
+                        <a href="#gallery" class="nav-link text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Gallery</a>
+                        <a href="#contact" class="nav-link text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Contact</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button class="mobile-menu-button p-2 rounded-md text-gray-700 hover:text-blue-600 focus:outline-none">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div class="mobile-menu hidden md:hidden bg-white shadow-lg">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-blue-600">Home</a>
+                <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700">About Us</a>
+                <a href="#team" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700">Our Team</a>
+                <a href="#offer" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700">We Offer</a>
+                <a href="#gallery" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700">Gallery</a>
+                <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-gradient text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="md:flex items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-6">Ignite Innovation with Robotics</h1>
+                    <p class="text-xl mb-8">Empowering schools with cutting-edge robotics education in IoT, Electronics, and Mechatronics</p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="#contact" class="bg-white text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg font-semibold text-center transition duration-300">Enroll Now</a>
+                        <a href="#offer" class="border-2 border-white text-white hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold text-center transition duration-300">Our Programs</a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center">
+                    <img src="https://images.unsplash.com/photo-1629904853893-c2c8981a1dc5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                         alt="Students learning robotics" 
+                         class="rounded-lg shadow-2xl max-w-full h-auto"
+                         loading="lazy">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-blue-600 mb-4">About Dynamic Innovators</h2>
+                <p class="text-gray-600 max-w-3xl mx-auto">AICRA approved robotics education provider since 2015</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-blue-50 p-6 rounded-lg shadow-md">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-bullseye text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Our Mission</h3>
+                    <p class="text-gray-600">To inspire and educate the next generation of innovators through hands-on robotics and STEM education in schools across India.</p>
+                </div>
+                <div class="bg-blue-50 p-6 rounded-lg shadow-md">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-chalkboard-teacher text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Teaching Approach</h3>
+                    <p class="text-gray-600">Practical, project-based learning with real-world applications, fostering creativity and problem-solving skills in students.</p>
+                </div>
+                <div class="bg-blue-50 p-6 rounded-lg shadow-md">
+                    <div class="text-blue-600 mb-4">
+                        <i class="fas fa-award text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Accreditations</h3>
+                    <p class="text-gray-600">Approved by AICRA, participated in IIT Techfests, Technoxian, and various national robotics competitions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Team Section -->
+    <section id="team" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-blue-600 mb-4">Our Expert Team</h2>
+                <p class="text-gray-600 max-w-3xl mx-auto">Passionate educators and robotics specialists</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md text-center team-card transition duration-300">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUW0u5Eiiy3oM6wcpeEE6sXCzlh8G-tX1_Iw&s" 
+                         alt="Shahid Shaekh" 
+                         class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-blue-100">
+                    <h3 class="text-xl font-semibold mb-2">Shahid Shaekh</h3>
+                    <p class="text-blue-600 mb-2">Lead Instructor</p>
+                    <p class="text-gray-600">Specializes in robotics programming and competition preparation with 8+ years of experience.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md text-center team-card transition duration-300">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUW0u5Eiiy3oM6wcpeEE6sXCzlh8G-tX1_Iw&s" 
+                         alt="Tathya Mehta" 
+                         class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-blue-100">
+                    <h3 class="text-xl font-semibold mb-2">Tathya Mehta</h3>
+                    <p class="text-blue-600 mb-2">Electronics Specialist</p>
+                    <p class="text-gray-600">Expert in circuit design and embedded systems with a passion for teaching fundamentals.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md text-center team-card transition duration-300">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUW0u5Eiiy3oM6wcpeEE6sXCzlh8G-tX1_Iw&s" 
+                         alt="Aaryan Yadav" 
+                         class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-blue-100">
+                    <h3 class="text-xl font-semibold mb-2">Aaryan Yadav</h3>
+                    <p class="text-blue-600 mb-2">Assembly Specialist</p>
+                    <p class="text-gray-600">Mechanical engineering background with expertise in robot design and fabrication.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md text-center team-card transition duration-300">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTUW0u5Eiiy3oM6wcpeEE6sXCzlh8G-tX1_Iw&s" 
+                         alt="Saket Singh" 
+                         class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-blue-100">
+                    <h3 class="text-xl font-semibold mb-2">Saket Singh</h3>
+                    <p class="text-blue-600 mb-2">Robotics Specialist</p>
+                    <p class="text-gray-600">Focuses on mechatronics and automation projects for intermediate and advanced students.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- We Offer Section -->
+    <section id="offer" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-blue-600 mb-4">Our Programs</h2>
+                <p class="text-gray-600 max-w-3xl mx-auto">Comprehensive robotics education for schools</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 course-card">
+                    <div class="bg-blue-100 text-blue-600 rounded-full w-16 h-16 flex items-center justify-center mb-4 mx-auto">
+                        <i class="fas fa-network-wired text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-center">IoT Programs</h3>
+                    <p class="text-gray-600 mb-4">Students learn to build smart, connected devices using sensors, microcontrollers, and cloud platforms.</p>
+                    <ul class="text-gray-600 mb-4 space-y-2">
+                        <li class="flex items-center"><i class="fas fa-check text-blue-500 mr-2"></i> Sensor networks</li>
+                        <li class="flex items-center"><i class="fas fa-check text-blue-500 mr-2"></i> Cloud integration</li>
+                        <li class="flex items-center"><i class="fas fa-check text-blue-500 mr-2"></i> Data visualization</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 course-card">
+                    <div class="bg-blue-100 text-blue-600 rounded-full w-16 h-16 flex items-center justify-center mb-4 mx-auto">
+                        <i class="fas fa-microchip text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-center">Electronics & Embedded Systems</h3>
+                    <p class="text-gray-600 mb-4">Hands-on training in circuit design, microcontrollers, and embedded programming.</p>
+                    <ul class="text-gray-600 mb-4 space-y-2">
+                        <li class="flex items-center"><i class="fas fa-check text-blue-500 mr-2"></i> Arduino/Raspberry Pi</li>
+                        <li class="flex items-center"><i class="fas fa-check text-blue-500 mr-2"></i> PCB design</li>
+                        <li class="flex items-center"><i class="fas fa-check text-blue-500 mr-2"></i> Sensor integration</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300 course-card">
+                    <div class="bg-blue-100 text-blue-600 rounded-full w-16 h-16 flex items-center justify-center mb-4 mx-auto">
+                        <i class="fas fa-robot text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 text-center">Mechatronics</h3>
+                    <p class="text-gray-600 mb-4">Integration of mechanical, electronic, and programming skills to build automated systems.</p>
+                    <ul class="text-gray-600 mb-4 space-y-2">
+                        <li class="flex items-center"><i class="fas fa-check text-blue-500 mr-2"></i> Robotics and Automation</li>
+                        <li class="flex items-center"><i class="fas fa-check text-blue-500 mr-2"></i> Assembly Level Programs</li>
+                        <li class="flex items-center"><i class="fas fa-check text-blue-500 mr-2"></i> Electronics Specialization</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-blue-600 mb-4">Our Gallery</h2>
+                <p class="text-gray-600 max-w-3xl mx-auto">Moments from our robotics workshops and competitions</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div class="relative overflow-hidden rounded-lg gallery-img">
+                    <img src="https://images.unsplash.com/photo-1551033406-611cf9a28f67?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                         alt="Workshop session" 
+                         class="w-full h-48 object-cover"
+                         loading="lazy">
+                </div>
+                <div class="relative overflow-hidden rounded-lg gallery-img">
+                    <img src="https://images.unsplash.com/photo-1593508512255-86ab42a8e620?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                         alt="Students building robots" 
+                         class="w-full h-48 object-cover"
+                         loading="lazy">
+                </div>
+                <div class="relative overflow-hidden rounded-lg gallery-img">
+                    <img src="https://images.unsplash.com/photo-1517430816045-df4b7ac11cbb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                         alt="Competition preparation" 
+                         class="w-full h-48 object-cover"
+                         loading="lazy">
+                </div>
+                <div class="relative overflow-hidden rounded-lg gallery-img">
+                    <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                         alt="Student project showcase" 
+                         class="w-full h-48 object-cover"
+                         loading="lazy">
+                </div>
+                <div class="relative overflow-hidden rounded-lg gallery-img">
+                    <img src="https://images.unsplash.com/photo-1581094794796-95ad741685f4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                         alt="Circuit building" 
+                         class="w-full h-48 object-cover"
+                         loading="lazy">
+                </div>
+                <div class="relative overflow-hidden rounded-lg gallery-img">
+                    <img src="https://images.unsplash.com/photo-1581094271901-8022df4466f9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                         alt="Team working" 
+                         class="w-full h-48 object-cover"
+                         loading="lazy">
+                </div>
+                <div class="relative overflow-hidden rounded-lg gallery-img">
+                    <img src="https://images.unsplash.com/photo-1581094272269-1c3a12060ca8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                         alt="Programming session" 
+                         class="w-full h-48 object-cover"
+                         loading="lazy">
+                </div>
+                <div class="relative overflow-hidden rounded-lg gallery-img">
+                    <img src="https://images.unsplash.com/photo-1581094487235-ce7c5ae8ae67?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                         alt="Award ceremony" 
+                         class="w-full h-48 object-cover"
+                         loading="lazy">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-blue-600 mb-4">Contact Us</h2>
+                <p class="text-gray-600 max-w-3xl mx-auto">Get in touch to bring robotics education to your school</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-12">
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-blue-800">Send us a message</h3>
+                    <form class="space-y-4">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                            <input type="text" id="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                            <input type="tel" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                            <textarea id="message" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        </div>
+                        <div>
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition duration-300">Send Message</button>
+                        </div>
+                    </form>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-4 text-blue-800">Contact Information</h3>
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-blue-100 rounded-full p-3 text-blue-600">
+                                <i class="fas fa-map-marker-alt text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-medium text-gray-900">Our Location</h4>
+                                <p class="text-gray-600">123 Innovation Drive, Tech Park<br>Bangalore, Karnataka 560001</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-blue-100 rounded-full p-3 text-blue-600">
+                                <i class="fas fa-envelope text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-medium text-gray-900">Email Us</h4>
+                                <p class="text-gray-600">info@dynamicinnovators.com<br>schools@dynamicinnovators.com</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 bg-blue-100 rounded-full p-3 text-blue-600">
+                                <i class="fas fa-phone-alt text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h4 class="text-lg font-medium text-gray-900">Call Us</h4>
+                                <p class="text-gray-600">+91 83295 58396</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8">
+                        <h4 class="text-lg font-medium text-blue-800 mb-3">Follow Us</h4>
+                        <div class="flex space-x-4">
+                            <a href="https://www.instagram.com/dynamic_innovators_official?igsh=cmVsY2Q1eGVkYjF6" class="bg-blue-100 text-blue-600 hover:bg-blue-200 w-10 h-10 rounded-full flex items-center justify-center transition duration-300">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-12 pb-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-robot text-blue-400 text-2xl mr-2"></i>
+                        <span class="text-xl font-bold text-white">Dynamic Innovators</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">Empowering schools with robotics education since 2024.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition duration-300">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition duration-300">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition duration-300">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition duration-300">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="text-gray-400 hover:text-white transition duration-300">Home</a></li>
+                        <li><a href="#about" class="text-gray-400 hover:text-white transition duration-300">About Us</a></li>
+                        <li><a href="#team" class="text-gray-400 hover:text-white transition duration-300">Our Team</a></li>
+                        <li><a href="#offer" class="text-gray-400 hover:text-white transition duration-300">Programs</a></li>
+                    </ul>
+                </div>
+            
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">Contact</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mt-1 mr-2 text-blue-400"></i>
+                            <span>Offering services all across Mira Road</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone-alt mr-2 text-blue-400"></i>
+                            <span>+91 8329558396</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope mr-2 text-blue-400"></i>
+                            <span>info@dynamicinnovators.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2025 Dynamic Innovators. All rights reserved.</p>
+                <div class="flex space-x-6">
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-6 right-6 bg-gray-700 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg hover:bg-gray-800 transition duration-300 opacity-0 invisible z-40">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.querySelector('.mobile-menu-button');
+        const mobileMenu = document.querySelector('.mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Back to top button
+        const backToTopButton = document.getElementById('back-to-top');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.remove('opacity-0', 'invisible');
+                backToTopButton.classList.add('opacity-100', 'visible');
+            } else {
+                backToTopButton.classList.remove('opacity-100', 'visible');
+                backToTopButton.classList.add('opacity-0', 'invisible');
+            }
+        });
+
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close mobile menu if open
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+
+        // Update active nav link on scroll
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (pageYOffset >= (sectionTop - 150)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active-link');
+                if (link.getAttribute('href="https://www.instagram.com/dynamic_innovators_official?igsh=cmVsY2Q1eGVkYjF6"') === `#${current}`) {
+                    link.classList.add('active-link');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
